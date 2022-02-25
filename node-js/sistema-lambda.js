@@ -43,13 +43,13 @@ omega21 = 2*Pi*6835e6;
 w1 = -0.5*omega21;
 w2 =  0.5*omega21;
 
-LB = 2*Pi*50e9      //Largura de banda, em Hz
+LB = 2*Pi*5e12      //Largura de banda, em Hz
 LM = 2*Pi*100e6      //Largura da mordida espectral, em Hz
-A = 0.5e10;
+A = 0.5e12;
 
 d = 0;
 
-h = 1e-12;
+h = 1e-15;
 pontos = 1e4
 
 t = -h*pontos/2;
