@@ -44,15 +44,15 @@ w1 = -0.5*omega21;
 w2 =  0.5*omega21;
 
 LB = 2*Pi*0.5e12      //Largura de banda, em Hz
-LM = 2*Pi*1000e6      //Largura da mordida espectral, em Hz
-A = 1.4e11;
+LM = 2*Pi*10e6      //Largura da mordida espectral, em Hz
+A = 2e12;
 
 d = 0;
 
-h = 50e-15;
-pontos = 5e6
+h = 25e-15;
+pontos = 20e6
 
-t = -h*pontos/2;
+t = -1e4*h;
 a11 = 0.5, a22 = 0.5;
 a33 = 0, a12 = 0, b12 = 0;
 a13 = 0, b13 = 0, a23 = 0, b23 = 0;
@@ -79,7 +79,7 @@ function campo(T)
 {
     alpha = -0.5*omega21*T
 
-    return 2*Pi*2*A * ( Math.sin(T*LB) - Math.sin(T*LM) ) / (T*LB);
+    return 2*Pi*2*A * ( Math.sin(T*LB) - 2*Math.sin(T*LM) ) / (T*LB);
 }
 
 k1 = [], k2 = [], k3 = [], k4 = [];
