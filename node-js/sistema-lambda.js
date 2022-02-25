@@ -39,22 +39,24 @@ q33 = 2*Pi*5e6;
 q13 = 0.5*q33;
 q12 = 0;
 
-Tp = 100e-15;
-deltaOmega = 2*Pi*6835e6;
-w1 = -0.5*deltaOmega;
-w2 =  0.5*deltaOmega;
+omega21 = 2*Pi*6835e6;
+w1 = -0.5*omega21;
+w2 =  0.5*omega21;
+
+LB = 2*Pi*50e9      //Largura de banda, em Hz
+LM = 2*Pi*20e6      //Largura da mordida espectral, em Hz
+A = 1e12;
 
 d = 0;
 
 h = 1e-15;
 
-t = 0;
+t = h;
 a11 = 0.5, a22 = 0.5;
 a33 = 0, a12 = 0, b12 = 0;
 a13 = 0, b13 = 0, a23 = 0, b23 = 0;
 
-alpha = 0;
-phi = 0;
+var alpha
 
 
 function bloch(a11, a22, a33, a12, b12, a13, b13, a23, b23, j)  //sistema de 3 níveis lambda
@@ -72,6 +74,13 @@ function bloch(a11, a22, a33, a12, b12, a13, b13, a23, b23, j)  //sistema de 3 n
     if (j===9) return   (d-w2)*a23-Omega*Math.sin(alpha)*b12+Omega*Math.cos(alpha)*(a33-a22-a12)-b23*q13;
 }
 
+function campo(t)
+{
+    alpha = -0.5*omega21*t
+
+    return 2*Pi*2*A * ( Math.sin(t*LB) - Math.sin(t*LM) )/ (t*LB);
+}
+
 k1 = [], k2 = [], k3 = [], k4 = [];
 
 console.log("tempo rho11 rho22 rho33 soma");
@@ -81,20 +90,28 @@ dados = "tempo rho11 rho22 rho33 soma\n" + "fs\n"
 
 for (k=0; k<=1000; k++){
 
-    Omega = 2*Pi*1e12;
+    //2*exp(-I*t*omega21)*(sin(t*LB) - sin(t*LM))/t
+
+    Omega = campo(t)
 
     for (p=1; p<=9; p++)
         k1[p] = bloch( a11, a22, a33, a12, b12, a13, b13, a23, b23, p );
     
+    Omega = campo(t + 0.5*h)
+
     for (p=1; p<=9; p++)
         k2[p] = bloch( a11 + 0.5*h*k1[1], a22 + 0.5*h*k1[2], a33 + 0.5*h*k1[3], 
                         a12 + 0.5*h*k1[4], b12 + 0.5*h*k1[5], a13 + 0.5*h*k1[6], 
                         b13 + 0.5*h*k1[7], a23 + 0.5*h*k1[8], b23 + 0.5*h*k1[9], p );
 
+    Omega = campo(t + 0.5*h)
+
     for (p=1; p<=9; p++)
         k3[p] = bloch( a11 + 0.5*h*k2[1], a22 + 0.5*h*k2[2], a33 + 0.5*h*k2[3], 
                         a12 + 0.5*h*k2[4], b12 + 0.5*h*k2[5], a13 + 0.5*h*k2[6], 
                         b13 + 0.5*h*k2[7], a23 + 0.5*h*k2[8], b23 + 0.5*h*k2[9], p );
+
+    Omega = campo(t + h)
 
     for (p=1; p<=9; p++)
         k4[p] = bloch( a11 + h*k3[1], a22 + h*k3[2], a33 + h*k3[3], 
@@ -118,8 +135,8 @@ for (k=0; k<=1000; k++){
 
     soma = a11 + a22 + a33
 
-    console.log(1e15*t + " " + a11 + " " + a22 + " " + a33 + " " + soma);
-    dados = dados + 1e15*t + " " + a11 + " " + a22 + " " + a33 + " " + soma + "\n"
+    console.log(1e15*t + " " + a11 + " " + a22 + " " + a33 + " " + soma + " " + campo(t));
+    dados = dados + 1e15*t + " " + a11 + " " + a22 + " " + a33 + " " + soma +  " " + campo(t) + "\n"
 }
 
 escreverArquivo(path, dados )
