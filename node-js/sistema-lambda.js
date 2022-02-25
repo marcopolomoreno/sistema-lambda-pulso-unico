@@ -44,14 +44,15 @@ w1 = -0.5*omega21;
 w2 =  0.5*omega21;
 
 LB = 2*Pi*50e9      //Largura de banda, em Hz
-LM = 2*Pi*20e6      //Largura da mordida espectral, em Hz
-A = 1e12;
+LM = 2*Pi*100e6      //Largura da mordida espectral, em Hz
+A = 0.5e10;
 
 d = 0;
 
-h = 1e-15;
+h = 1e-12;
+pontos = 1e4
 
-t = h;
+t = -h*pontos/2;
 a11 = 0.5, a22 = 0.5;
 a33 = 0, a12 = 0, b12 = 0;
 a13 = 0, b13 = 0, a23 = 0, b23 = 0;
@@ -76,9 +77,9 @@ function bloch(a11, a22, a33, a12, b12, a13, b13, a23, b23, j)  //sistema de 3 n
 
 function campo(t)
 {
-    alpha = -0.5*omega21*t
+    alpha = 0.5*omega21*t
 
-    return 2*Pi*2*A * ( Math.sin(t*LB) - Math.sin(t*LM) )/ (t*LB);
+    return 2*Pi*2*A * ( Math.sin(t*LB) - 2*Math.sin(t*LM) )/ (t*LB);
 }
 
 k1 = [], k2 = [], k3 = [], k4 = [];
@@ -88,9 +89,7 @@ console.log("fs");
 
 dados = "tempo rho11 rho22 rho33 soma\n" + "fs\n"
 
-for (k=0; k<=1000; k++){
-
-    //2*exp(-I*t*omega21)*(sin(t*LB) - sin(t*LM))/t
+for (k=0; k<=pontos; k++){
 
     Omega = campo(t)
 
@@ -139,4 +138,4 @@ for (k=0; k<=1000; k++){
     dados = dados + 1e15*t + " " + a11 + " " + a22 + " " + a33 + " " + soma +  " " + campo(t) + "\n"
 }
 
-escreverArquivo(path, dados )
+escreverArquivo(path, dados)
