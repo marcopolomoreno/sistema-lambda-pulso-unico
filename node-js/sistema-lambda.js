@@ -43,14 +43,14 @@ omega21 = 2*Pi*6835e6;
 w1 = -0.5*omega21;
 w2 =  0.5*omega21;
 
-LB = 2*Pi*5e12      //Largura de banda, em Hz
-LM = 2*Pi*100e6      //Largura da mordida espectral, em Hz
-A = 0.5e12;
+LB = 2*Pi*0.5e12      //Largura de banda, em Hz
+LM = 2*Pi*1000e6      //Largura da mordida espectral, em Hz
+A = 1.4e11;
 
 d = 0;
 
-h = 1e-15;
-pontos = 1e4
+h = 50e-15;
+pontos = 5e6
 
 t = -h*pontos/2;
 a11 = 0.5, a22 = 0.5;
@@ -62,32 +62,29 @@ var alpha
 
 function bloch(a11, a22, a33, a12, b12, a13, b13, a23, b23, j)  //sistema de 3 níveis lambda
 {
-    if (j===1) return 2*Omega*(Math.cos(alpha)*b13-Math.sin(alpha)*a13)                +0.5*q33*a33;
-    if (j===2) return 2*Omega*(Math.cos(alpha)*b23-Math.sin(alpha)*a23)                +0.5*q33*a33;
-    if (j===3) return 2*Omega*(Math.sin(alpha)*(a13+a23)-Math.cos(alpha)*(b13+b23))        -q33*a33;
+    if (j===1) return 2*Omega*(Math.cos(alpha)*b13 - Math.sin(alpha)*a13)                +0.5*q33*a33;
+    if (j===2) return 2*Omega*(Math.cos(alpha)*b23 - Math.sin(alpha)*a23)                +0.5*q33*a33;
+    if (j===3) return 2*Omega*(Math.sin(alpha)*(a13+a23) - Math.cos(alpha)*(b13+b23))        -q33*a33;
     
-    if (j===4) return -(w2-w1)*b12+Omega*(Math.cos(alpha)*(b13+b23)-Math.sin(alpha)*(a13+a23))-a12*q12;
-    if (j===5) return  (w2-w1)*a12+Omega*(Math.cos(alpha)*(a23-a13)+Math.sin(alpha)*(b23-b13))-b12*q12;
+    if (j===4) return -(w2-w1)*b12 + Omega*(Math.cos(alpha)*(b13+b23) - Math.sin(alpha)*(a13+a23)) - a12*q12;
+    if (j===5) return  (w2-w1)*a12 + Omega*(Math.cos(alpha)*(a23-a13) + Math.sin(alpha)*(b23-b13)) - b12*q12;
    
-    if (j===6) return  -(d-w1)*b13+Omega*Math.cos(alpha)*b12+Omega*Math.sin(alpha)*(a12+a11-a33)-a13*q13;
-    if (j===7) return   (d-w1)*a13+Omega*Math.sin(alpha)*b12+Omega*Math.cos(alpha)*(a33-a11-a12)-b13*q13;
-    if (j===8) return  -(d-w2)*b23-Omega*Math.cos(alpha)*b12+Omega*Math.sin(alpha)*(a12+a22-a33)-a23*q13;
-    if (j===9) return   (d-w2)*a23-Omega*Math.sin(alpha)*b12+Omega*Math.cos(alpha)*(a33-a22-a12)-b23*q13;
+    if (j===6) return  -(d-w1)*b13 + Omega*Math.cos(alpha)*b12 + Omega*Math.sin(alpha)*(a12+a11-a33) - a13*q13;
+    if (j===7) return   (d-w1)*a13 + Omega*Math.sin(alpha)*b12 + Omega*Math.cos(alpha)*(a33-a11-a12) - b13*q13;
+    if (j===8) return  -(d-w2)*b23 - Omega*Math.cos(alpha)*b12 + Omega*Math.sin(alpha)*(a12+a22-a33) - a23*q13;
+    if (j===9) return   (d-w2)*a23 - Omega*Math.sin(alpha)*b12 + Omega*Math.cos(alpha)*(a33-a22-a12) - b23*q13;
 }
 
-function campo(t)
+function campo(T)
 {
-    alpha = 0.5*omega21*t
+    alpha = -0.5*omega21*T
 
-    return 2*Pi*2*A * ( Math.sin(t*LB) - 2*Math.sin(t*LM) )/ (t*LB);
+    return 2*Pi*2*A * ( Math.sin(T*LB) - Math.sin(T*LM) ) / (T*LB);
 }
 
 k1 = [], k2 = [], k3 = [], k4 = [];
 
-console.log("tempo rho11 rho22 rho33 soma");
-console.log("fs");
-
-dados = "tempo rho11 rho22 rho33 soma\n" + "fs\n"
+dados = "tempo rho11 rho22 rho33 sigma12 sigma13 sigma23 soma\n" + "ps\n"
 
 for (k=0; k<=pontos; k++){
 
@@ -129,13 +126,18 @@ for (k=0; k<=pontos; k++){
     a13 = a13 + h/6.0 * ( k1[6] + 2*k2[6] + 2*k3[6] + k4[6] );
     b13 = b13 + h/6.0 * ( k1[7] + 2*k2[7] + 2*k3[7] + k4[7] );
 
-    a12 = a23 + h/6.0 * ( k1[8] + 2*k2[8] + 2*k3[8] + k4[8] );
+    a23 = a23 + h/6.0 * ( k1[8] + 2*k2[8] + 2*k3[8] + k4[8] );
     b23 = b23 + h/6.0 * ( k1[9] + 2*k2[9] + 2*k3[9] + k4[9] );
 
     soma = a11 + a22 + a33
+    sigma12 = a12*a12 + b12*b12
+    sigma13 = a13*a13 + b13*b13
+    sigma23 = a23*a23 + b23*b23
 
-    console.log(1e15*t + " " + a11 + " " + a22 + " " + a33 + " " + soma + " " + campo(t));
-    dados = dados + 1e15*t + " " + a11 + " " + a22 + " " + a33 + " " + soma +  " " + campo(t) + "\n"
+    if (k%1000 === 0){
+        console.log((1e12*t).toFixed(8) + " " + a11.toFixed(4) + " " + a22.toFixed(4) + " " + a33.toFixed(4) + " " + soma.toFixed(4));
+        dados = dados + 1e12*t + " " + a11 + " " + a22 + " " + a33 + " " + sigma12 + " " + sigma13 + " " + sigma23 + " " + soma + " " + campo(t) + "\n"
+    }    
 }
 
 escreverArquivo(path, dados)
