@@ -24,7 +24,7 @@ function escreverArquivo(caminho,texto){
         if (error){
             console.error('erro de escrita' + error.message)
         } else {
-            console.log('escreve com sucesso em '+ caminho)
+            console.log('Escrito com sucesso em '+ caminho)
         }
     })
 }
@@ -44,7 +44,7 @@ w1 = -0.5*omega21;
 w2 =  0.5*omega21;
 
 LB = 2*Pi*0.5e12      //Largura de banda, em Hz
-LM = 2*Pi*10e6      //Largura da mordida espectral, em Hz
+LM = 2*Pi*20e6      //Largura da mordida espectral, em Hz
 A = 2e12;
 
 d = 0;
@@ -84,7 +84,7 @@ function campo(T)
 
 k1 = [], k2 = [], k3 = [], k4 = [];
 
-dados = "tempo rho11 rho22 rho33 sigma12 sigma13 sigma23 soma\n" + "ps\n"
+dados = "tempo rho11 rho22 rho33 sigma12 sigma13 sigma23 soma campo\n" + "ns\n"
 
 for (k=0; k<=pontos; k++){
 
@@ -135,8 +135,8 @@ for (k=0; k<=pontos; k++){
     sigma23 = a23*a23 + b23*b23
 
     if (k%1000 === 0){
-        console.log((1e12*t).toFixed(8) + " " + a11.toFixed(4) + " " + a22.toFixed(4) + " " + a33.toFixed(4) + " " + soma.toFixed(4));
-        dados = dados + 1e12*t + " " + a11 + " " + a22 + " " + a33 + " " + sigma12 + " " + sigma13 + " " + sigma23 + " " + soma + " " + campo(t) + "\n"
+        console.log((1e9*t).toFixed(8) + " " + a11.toFixed(4) + " " + a22.toFixed(4) + " " + a33.toFixed(4) + " " + soma.toFixed(4));
+        dados = dados + 1e9*t + " " + a11 + " " + a22 + " " + a33 + " " + sigma12 + " " + sigma13 + " " + sigma23 + " " + soma + " " + campo(t) + "\n"
     }    
 }
 
