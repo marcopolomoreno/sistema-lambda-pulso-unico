@@ -44,8 +44,10 @@ w1 = -0.5*omega21;
 w2 =  0.5*omega21;
 
 LB = 2*Pi*0.5e12      //Largura de banda, em Hz
-LM = 2*Pi*20e6      //Largura da mordida espectral, em Hz
+LM = 0*2*Pi*20e6      //Largura da mordida espectral, em Hz
 A = 2e12;
+Tp = 100e-15;           //Largura temporal
+tipoCampo = "quadrado"      //quadrado ou sech
 
 d = 0;
 
@@ -77,9 +79,19 @@ function bloch(a11, a22, a33, a12, b12, a13, b13, a23, b23, j)  //sistema de 3 n
 
 function campo(T)
 {
-    alpha = -0.5*omega21*T
+    if (tipoCampo === "quadrado")
+    {
+        alpha = -0.5*omega21*T
 
-    return 2*Pi*2*A * ( Math.sin(T*LB) - 2*Math.sin(T*LM) ) / (T*LB);
+        return 2*Pi*2*A * ( Math.sin(T*LB) - 2*Math.sin(T*LM) ) / (T*LB);
+    }    
+ 
+    if (tipoCampo === "sech")
+    {
+        alpha = 0.5;
+
+        return A/Math.cosh(1.76*T/Tp)
+    }
 }
 
 k1 = [], k2 = [], k3 = [], k4 = [];
